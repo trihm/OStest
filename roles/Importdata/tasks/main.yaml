@@ -1,0 +1,16 @@
+---
+- name: Import container and data
+  shell: "{{ item }}"
+  with_items:
+  - "cat /opt/rsync/passwd.sync >> /etc/passwd"
+  - "cat /opt/rsync/group.sync >> /etc/group"
+  - "cat /opt/rsync/shadow.sync >> /etc/shadow"
+  - "cat /opt/rsync/gshadow.sync >> /etc/gshadow"
+  - tar -xvf /opt/rsync/home.tar -C /
+  - tar -xvf /opt/rsync/web.tar -C /opt
+  - docker container run -d --restart unless-stopped --name db -e MYSQL_ROOT_PASSWORD=nopass -v /opt/mysql:/var/lib/mysql -v /opt/rsync/backup.sql:/docker-entrypoint-initdb.d/dump.sql mysql
+  - docker container run -d --restart unless-stopped --name web -v /opt/web:/usr/share/nginx/html -p 80:80 nginx
+- name: Reboot
+  reboot:
+    reboot_timeout: 180
+
