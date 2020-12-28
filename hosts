@@ -1,4 +1,4 @@
 [OldOS]
 source ansible_host=192.168.32.130 ansible_user=root ansible_password=Hiimjerry ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 [NewOS]
-dest ansible_host=42.117.9.28 ansible_user=root ansible_password=E5Z}cJM'P:(^EU;hJB5z ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+dest ansible_host=192.168.32.132 ansible_user=root ansible_password=Hiimjerry ansible_ssh_common_args='-o StrictHostKeyChecking=no'
