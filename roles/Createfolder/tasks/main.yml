@@ -1,0 +1,4 @@
+- name: Create folder for packing/receiving data
+  file:
+    path: "{{ dirpath_create }}"
+    state: directory

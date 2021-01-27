@@ -1,0 +1,31 @@
+- name: Import User, group data
+  shell: "{{ item }}"
+  with_items:
+  - "cat {{ dirpath_create }}/passwd.sync >> /etc/passwd"
+  - "cat {{ dirpath_create }}/group.sync >> /etc/group"
+  - "cat {{ dirpath_create }}/shadow.sync >> /etc/shadow"
+  - "cat {{ dirpath_create }}/gshadow.sync >> /etc/gshadow"
+  register: userimport
+
+- name: Debug command import user data
+  debug:
+    msg: "{{ userimport }}"
+    verbosity: 2
+  when: userimport is defined
+
+- name: Unarchive web and home directory
+  unarchive:
+    remote_src: yes
+    src: "{{ dirpath_create }}/data.tar"
+    dest: /
+  register: unarchive
+
+- name: Debug unarchive process
+  debug:
+    msg: "{{ unarchive }}"
+    verbosity: 2
+  when: unarchive is defined
+
+- name: Update Credential
+  reboot:
+    reboot_timeout: 180

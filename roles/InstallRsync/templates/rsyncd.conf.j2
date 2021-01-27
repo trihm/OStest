@@ -1,0 +1,9 @@
+uid = 0
+gid = 0
+exclude = lost+found/
+log file = /var/log/rsyncd.log
+
+[migrate]
+path = {{ dirpath_create }}
+hosts allow = {{ SourceIP }}
+read only = no

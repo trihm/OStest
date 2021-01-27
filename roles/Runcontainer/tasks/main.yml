@@ -1,0 +1,44 @@
+- name: Create mount directory for mysql container
+  file:
+    path: /opt/mysql
+    state: directory
+
+- name: Run database container
+  community.docker.docker_container:
+    name: db
+    image: mysql:latest
+    restart_policy: unless-stopped
+    env:
+      MYSQL_ROOT_PASSWORD: "nopass"
+    mounts:
+      - type: bind
+        source: /opt/mysql
+        target: /var/lib/mysql
+      - type: bind
+        source: "{{ dirpath_create }}/backup.sql"
+        target: /docker-entrypoint-initdb.d/dump.sql
+  register: bugdbcontainer
+
+- name: Db container run debugging
+  debug:
+    msg: "{{ bugdbcontainer }}"
+    verbosity: 2
+  when: bugdbcontainer is defined
+
+- name: Run web container
+  community.docker.docker_container:
+    name: web
+    image: nginx:latest
+    restart_policy: unless-stopped
+    mounts:
+      - type: bind
+        source: /opt/web
+        target: /usr/share/nginx/html
+    ports:
+      - "80:80"
+  register: bugwebcontainer
+
+- name: Web container run debugging
+  debug:
+    msg: "{{ bugwebcontainer }}"
+    verbosity: 2

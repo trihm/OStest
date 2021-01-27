@@ -1,0 +1,30 @@
+---
+- name: Dump container's database and Linux user
+  shell: "{{ item }}"
+  with_items:
+    - docker container exec {{ dbcontainername }} /usr/bin/mysqldump -u root --password="{{ encrypt_DBpassword }}" --all-databases > {{ dirpath_create }}/backup.sql
+    - "awk -v LIMIT=1000 -F: '($3>=LIMIT) && ($3!=65534)' /etc/passwd > {{ dirpath_create }}/passwd.sync"
+    - "awk -v LIMIT=1000 -F: '($3>=LIMIT) && ($3!=65534)' /etc/group > {{ dirpath_create }}/group.sync"
+    - "awk -v LIMIT=1000 -F: '($3>=LIMIT) && ($3!=65534) {print $1}' /etc/passwd | tee - | egrep -f - /etc/shadow > {{ dirpath_create }}/shadow.sync"
+    - "awk -v LIMIT=1000 -F: '($3>=LIMIT) && ($3!=65534) {print $1}' /etc/group | tee - | egrep -f - /etc/gshadow > {{ dirpath_create }}/gshadow.sync"
+  register: dump
+
+- name: Shell output
+  debug:
+    msg: "{{ dump.stdout }}"
+    verbosity: 2
+  when: dump.stdout is defined
+
+- name: Compress web data and home directory
+  community.general.archive:
+    path:
+    - /opt/web
+    - /home
+    format: tar
+    dest: "{{ dirpath_create }}/data.tar"
+  register: compress
+
+- name: Compress state
+  debug:
+    msg: "{{ compress.state }}"
+    verbosity: 2

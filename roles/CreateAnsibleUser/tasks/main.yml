@@ -1,0 +1,31 @@
+- name: Install sudo if doesn't exist
+  apt:
+    pkg:
+      - sudo
+    update_cache: yes
+
+- name: Add the user 'ansible' with uid 1050
+  user:
+    name: ansible
+    state: present
+    uid: "{{ ansible_uid }}"
+
+- name: Give sudo privilege to ansible
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^ansible'
+    line: 'ansible ALL=(ALL) NOPASSWD: ALL'
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Create SSH key folder
+  file:
+    path: /home/ansible/.ssh
+    state: directory
+    owner: ansible
+
+- name: Append public key
+  ansible.builtin.lineinfile:
+    path: /home/ansible/.ssh/authorized_keys
+    line: "{{ ssh_public_key }}"
+    create: yes

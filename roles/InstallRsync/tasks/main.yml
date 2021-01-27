@@ -1,0 +1,26 @@
+- name: Install rsync
+  apt:
+    pkg:
+    - rsync
+    update_cache: yes
+  register: apt
+
+- name: Apt install output
+  debug:
+    msg: "{{ apt.stdout.split('\n') }}"
+    verbosity: 2
+  when: apt.stdout is defined
+
+- name: Apt install error
+  debug:
+    msg: "{{ apt.stderr.split('\n') }}"
+    verbosity: 2
+  when: apt.stderr is defined
+
+- name: Send rsync config
+  template:
+    src: roles/InstallRsync/templates/rsyncd.conf.j2
+    dest: /etc/rsyncd.conf
+  notify:
+  - Restart service rsync
+  when: inventory_hostname in groups['DestOS']

@@ -1,0 +1,70 @@
+- name: Install dependencies for apt
+  apt:
+    pkg:
+    - apt-transport-https
+    - ca-certificates
+    - gnupg-agent
+    - software-properties-common
+    - curl
+    update_cache: yes
+  register: apt1
+
+- name: Dependencies install output
+  debug:
+    msg: "{{ apt1.stdout.split('\n') }}"
+    verbosity: 2
+  when: apt1.stdout is defined
+
+- name: Dependencies install error
+  debug:
+    msg: "{{ apt1.stderr.split('\n') }}"
+    verbosity: 2
+  when: apt1.stderr is defined
+
+- name: Add docker apt key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: Add Docker repository into sources list
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/debian buster stable
+    state: present
+  register: aptkey
+
+- name: Debug aptkey
+  debug:
+    msg: "{{ aptkey }}"
+    verbosity: 2
+
+- name: Install Docker
+  apt:
+    pkg:
+    - docker-ce=18.06.3~ce~3-0~debian
+    - containerd.io
+    - python-backports.ssl-match-hostname
+    - python-pip
+    update_cache: yes
+  register: apt2
+
+- name: Doocker install output
+  debug:
+    msg: "{{ apt2.stdout.split('\n') }}"
+    verbosity: 2
+  when: apt2.stdout is defined
+
+- name: Docker install error
+  debug:
+    msg: "{{ apt2.stderr.split('\n') }}"
+    verbosity: 2
+  when: apt2.stderr is defined
+
+- name: Install docker SDK for ansible module
+  pip:
+    name: docker
+  register: pipdocker
+
+- name: Debug pip install docker
+  debug:
+    msg: "{{ pipdocker }}"
+    verbosity: 2

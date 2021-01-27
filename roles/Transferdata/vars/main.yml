@@ -1,4 +1,0 @@
-container1: db
-container2: web
-DBpassword: 123
-DestIP: 192.168.32.132
